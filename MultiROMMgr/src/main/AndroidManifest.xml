@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="L" />
 
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -77,7 +77,7 @@
             android:name="com.tassadar.multirommgr.romlistfragment.RomBootActivity"
             android:exported="true"
             android:label="@string/boot_rom_title"
-            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"/>
+            android:theme="@style/BootDialogTheme"/>
 
     </application>
 

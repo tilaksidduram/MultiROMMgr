@@ -1,0 +1,4 @@
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material.Light.DarkActionBar" />
+    <style name="BootDialogTheme" parent="android:Theme.Material.Light.Dialog.NoActionBar" />
+</resources>
