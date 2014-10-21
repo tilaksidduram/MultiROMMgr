@@ -235,6 +235,28 @@
                     "path": "/dev/block/platform/msm_sdcc.1/by-name/cache"
                 }
             ]
+        },
+		{
+            "names": [ "t03g", "n7100", "GT-N7100" ],
+            "manifest_url": "http://tilaksidduram.github.io/multirom/n7100/manifest.json",
+            "check_gpg": false,
+            "ubuntu_touch": {
+                "enabled": false
+            },
+            "devices": [
+                {
+                    "name": "recovery",
+                    "path": "/dev/block/mmcblk0p9"
+                },
+                {
+                    "name": "boot",
+                    "path": "/dev/block/mmcblk0p8"
+                },
+                {
+                    "name": "cache",
+                    "path": "/dev/block/mmcblk0p12"
+                }
+            ]
         }
     ]
 }
