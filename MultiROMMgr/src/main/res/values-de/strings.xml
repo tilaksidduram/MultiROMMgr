@@ -82,7 +82,7 @@
     <string name="about">Über</string>
     <string name="about_version">Version</string>
     <string name="about_licenses">Lizenzen</string>
-    <string name="about_licenses_summ">MultiROM Manager ist unter der GNU GPLv3 lizenziert und nutzt die folgenden Programmbibliotheken, welche alle der Apache 2.0 Lizenz unterliegen:\nlibsuperuser\nCardsUI\nActionBar-PullToRefresh</string>
+    <string name="about_licenses_summ">MultiROM Manager ist unter der GNU GPLv3 lizenziert und nutzt die folgenden Programmbibliotheken, welche alle der Apache 2.0 Lizenz unterliegen:\nlibsuperuser\nCardsUI</string>
     <string name="already_developer">Okay, Du bist bereits ein Entwickler.</string>
     <string name="now_developer">Du bist jetzt ein Entwickler!</string>
     <string name="dev_options">Entwickleroptionen</string>
@@ -130,6 +130,7 @@
     <string name="no_manifest">Automatische Installation und Updates werden von diesem Gerät zurzeit nicht unterstützt.</string>
     <string name="pref_manifest_override">Manifest-URL überschreiben</string>
     <string name="notice">Hinweis</string>
+    <string name="unsupported_details"><![CDATA[MultiROM ist ein komplexer Software-Mod. Es muss für jedes einzelne Gerät separat entwickelt werden, daher werden zurzeit nur ein paar unterstützt. <br>Es tut uns Leid, aber deins ist leider (noch) nicht darunter.<br><br>Falls du MultiROM selber für dein Gerät entwickeln willst, steht dir <a href=\"https://github.com/Tasssadar/multirom/wiki/Porting-MultiROM\">das MultiROM Wiki</a> zur Verfügung.]]></string>
 
 
     <string-array name="reboot_options">

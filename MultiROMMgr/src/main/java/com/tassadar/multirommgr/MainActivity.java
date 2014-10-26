@@ -26,8 +26,11 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.app.FragmentManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,11 +41,7 @@ import android.widget.ListView;
 
 import com.tassadar.multirommgr.installfragment.UbuntuManifestAsyncTask;
 
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
-
-public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyncTaskListener, MainActivityListener, OnRefreshListener {
+public class MainActivity extends ActionBarActivity implements StatusAsyncTask.StatusAsyncTaskListener, MainActivityListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final int ACT_INSTALL_MULTIROM   = 1;
     public static final int ACT_INSTALL_UBUNTU     = 2;
@@ -63,6 +62,9 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
 
         Utils.installHttpCache(this);
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
+        m_srLayout = (MultiROMSwipeRefreshLayout)findViewById(R.id.refresh_layout);
+        m_srLayout.setOnRefreshListener(this);
 
         m_curFragment = -1;
 
@@ -95,26 +97,22 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
 
         m_drawerTitle = getText(R.string.app_name);
         m_drawerToggle = new ActionBarDrawerToggle(
-                this, m_drawerLayout, R.drawable.ic_drawer,
-                R.string.drawer_open, R.string.drawer_close) {
+                this, m_drawerLayout, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
-                getActionBar().setTitle(m_title);
+                getSupportActionBar().setTitle(m_title);
             }
 
             public void onDrawerOpened(View drawerView) {
-                getActionBar().setTitle(m_drawerTitle);
+                getSupportActionBar().setTitle(m_drawerTitle);
             }
         };
         m_drawerLayout.setDrawerListener(m_drawerToggle);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
-
-        m_ptrLayout = (PullToRefreshLayout)findViewById(R.id.content_frame);
-        m_ptrPullableViews = new View[0];
-        m_ptrSetup = ActionBarPullToRefresh
-                .from(this)
-                .listener(this);
+        final ActionBar bar = getSupportActionBar();
+        if(bar != null) {
+            bar.setDisplayHomeAsUpEnabled(true);
+            bar.setHomeButtonEnabled(true);
+        }
 
         if (getIntent().hasExtra(INTENT_EXTRA_SHOW_ROM_LIST) &&
             getIntent().getBooleanExtra(INTENT_EXTRA_SHOW_ROM_LIST, false)) {
@@ -150,6 +148,7 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
 
     @Override
     public boolean onCreateOptionsMenu (Menu menu) {
+
         getMenuInflater().inflate(R.menu.main, menu);
 
         m_refreshItem = menu.findItem(R.id.action_refresh);
@@ -192,7 +191,7 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
     @Override
     public void setTitle(CharSequence title) {
         m_title = title;
-        getActionBar().setTitle(m_title);
+        getSupportActionBar().setTitle(m_title);
     }
 
     @Override
@@ -244,9 +243,9 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
         }
     }
 
-    @Override
-    public void startRefresh() {
-        m_ptrLayout.setRefreshing(true);
+    public void startRefresh(boolean notifyRefreshLayout) {
+        if(notifyRefreshLayout)
+            m_srLayout.setRefreshing(true);
 
         if(m_refreshItem != null)
             m_refreshItem.setEnabled(false);
@@ -258,20 +257,24 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
         StatusAsyncTask.instance().execute();
     }
 
-    @Override
-    public void refresh() {
+    public void refresh(boolean notifyRefreshLayout) {
         StatusAsyncTask.destroy();
         UbuntuManifestAsyncTask.destroy();
 
         for(int i = 0; i < m_fragments.length; ++i)
             m_fragments[i].refresh();
 
-        startRefresh();
+        startRefresh(notifyRefreshLayout);
+    }
+
+    @Override
+    public void refresh() {
+        refresh(true);
     }
 
     @Override
     public void setRefreshComplete() {
-        m_ptrLayout.setRefreshComplete();
+        m_srLayout.setRefreshing(false);
 
         if(m_refreshItem != null)
             m_refreshItem.setEnabled(true);
@@ -283,19 +286,20 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
     @Override
     public void onFragmentViewCreated() {
         if(++m_fragmentViewsCreated == m_fragments.length) {
-            m_ptrSetup.theseChildrenArePullable(m_ptrPullableViews)
-                      .setup(m_ptrLayout);
-
-            m_ptrSetup = null;
-            m_ptrPullableViews = null;
-
-            Intent i = getIntent();
-            if(i == null || !i.getBooleanExtra("force_refresh", false)) {
-                startRefresh();
-            } else {
-                i.removeExtra("force_refresh");
-                refresh();
-            }
+            // postDelayed because SwipeRefresher view ignores
+            // setRefreshing call otherwise
+            m_srLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent i = getIntent();
+                    if(i == null || !i.getBooleanExtra("force_refresh", false)) {
+                        startRefresh(true);
+                    } else {
+                        i.removeExtra("force_refresh");
+                        refresh();
+                    }
+                }
+            }, 1);
         }
     }
 
@@ -305,11 +309,8 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
     }
 
     @Override
-    public void addPullableView(View view) {
-        View[] newViews = new View[m_ptrPullableViews.length + 1];
-        newViews[0] = view;
-        System.arraycopy(m_ptrPullableViews, 0, newViews, 1, m_ptrPullableViews.length);
-        m_ptrPullableViews = newViews;
+    public void addScrollUpListener(MultiROMSwipeRefreshLayout.ScrollUpListener l) {
+        m_srLayout.addScrollUpListener(l);
     }
 
     @Override
@@ -319,8 +320,8 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
     }
 
     @Override
-    public void onRefreshStarted(View view) {
-        refresh();
+    public void onRefresh() {
+        refresh(false);
     }
 
     private DrawerLayout m_drawerLayout;
@@ -333,8 +334,5 @@ public class MainActivity extends Activity implements StatusAsyncTask.StatusAsyn
     private CharSequence m_drawerTitle;
     private MenuItem m_refreshItem;
     private int m_fragmentViewsCreated;
-
-    private PullToRefreshLayout m_ptrLayout;
-    private ActionBarPullToRefresh.SetupWizard m_ptrSetup;
-    private View[] m_ptrPullableViews;
+    private MultiROMSwipeRefreshLayout m_srLayout;
 }

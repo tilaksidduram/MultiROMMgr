@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -108,7 +109,7 @@ public class StatusAsyncTask extends AsyncTask <Void, String, StatusAsyncTask.Re
         publishProgress(Utils.getString(R.string.prog_detecting_dev));
 
         SharedPreferences p = MgrApp.getPreferences();
-        Device dev = Device.load(p.getString(SettingsActivity.DEV_DEVICE_NAME, Build.DEVICE));
+        Device dev = Device.load(p.getString(SettingsFragment.DEV_DEVICE_NAME, Build.DEVICE));
         if(dev == null) {
             res.code = RES_UNSUPPORTED;
             return res;
@@ -166,7 +167,7 @@ public class StatusAsyncTask extends AsyncTask <Void, String, StatusAsyncTask.Re
                 if(man.hasCommand("RESET_MAN_URL")) {
                     res.manifest_reset_status = man.getCommandArg("RESET_MAN_URL");
                     SharedPreferences.Editor e = p.edit();
-                    e.remove(SettingsActivity.DEV_MANIFEST_URL);
+                    e.remove(SettingsFragment.DEV_MANIFEST_URL);
                     e.apply();
                     continue;
                 }
@@ -218,9 +219,7 @@ public class StatusAsyncTask extends AsyncTask <Void, String, StatusAsyncTask.Re
             m_res.manifest_reset_status = null;
         }
 
-        View v = l.findViewById(R.id.progress_bar);
-        v.setVisibility(View.GONE);
-        v = l.findViewById(R.id.progress_text);
+        View v = l.findViewById(R.id.progress_text);
         v.setVisibility(View.GONE);
 
         TextView t = (TextView) l.findViewById(R.id.error_text);
@@ -233,6 +232,12 @@ public class StatusAsyncTask extends AsyncTask <Void, String, StatusAsyncTask.Re
             case RES_UNSUPPORTED: {
                 String s = t.getResources().getString(R.string.unsupported, Build.DEVICE);
                 t.setText(s);
+                t.setVisibility(View.VISIBLE);
+
+                s = t.getResources().getString(R.string.unsupported_details);
+                t = (TextView) l.findViewById(R.id.error_detail_text);
+                t.setMovementMethod(LinkMovementMethod.getInstance());
+                t.setText(Html.fromHtml(s));
                 t.setVisibility(View.VISIBLE);
                 return;
             }

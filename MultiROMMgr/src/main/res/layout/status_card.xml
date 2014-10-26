@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:contentDescription="@string/uninstall"
             android:padding="4dp"
-            android:background="@drawable/transparent_btn"
+            android:background="?btnBackgroundBorderless"
             android:src="@drawable/content_discard"
             android:visibility="gone"/>
 
@@ -45,12 +45,6 @@
         android:minHeight="50dp"
         android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:indeterminateOnly="true" />
         <TextView
             android:id="@+id/progress_text"
             android:layout_width="wrap_content"
@@ -68,20 +62,32 @@
             android:layout_marginLeft="8dp"
             android:visibility="gone"
             android:maxLines="4"/>
+
         <TextView
             android:id="@+id/error_text"
             style="@style/CardText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_gravity="center"
+            android:gravity="center"
             android:textSize="16sp"
             android:ellipsize="end"
             android:visibility="gone"
             android:textStyle="bold"
             android:maxLines="10"
-            android:textAlignment="center"
             android:textColor="#FF0000" />
+        <TextView
+            android:id="@+id/error_detail_text"
+            style="@style/CardText"
+            android:textSize="@dimen/status_card_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:maxLines="10"
+            android:textStyle="bold"
+            android:textColor="#000"/>
     </LinearLayout>
 
 </LinearLayout>

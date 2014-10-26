@@ -24,12 +24,16 @@ android {
             applicationIdSuffix 'debug'
             versionNameSuffix '-debug'
         }
+        release {
+            runProguard true
+            proguardFile 'proguard.cfg'
+        }
     }
 }
 
 dependencies {
     compile 'com.android.support:support-v4:21.0.+'
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+'
+    compile 'com.android.support:appcompat-v7:21.0.+'
 }
 
 android {
